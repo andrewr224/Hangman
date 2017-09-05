@@ -5,8 +5,6 @@ class Game
     @tries = 6
     @misses = []
     @hits = []
-
-    p @word.join(" ")
     take_turn
   end
 
@@ -36,13 +34,34 @@ class Game
 
   def take_turn
     until game_over? || victory?
+      show_gallows
       puts "Word:   #{hide_word.join(' ')}"
       puts "Misses: #{@misses.join(', ')}"
       check_guess guess
     end
+    show_gallows
     puts "Word:   #{hide_word.join(' ')}"
     puts "You have lost." if game_over?
     puts "You are victorious!" if victory?
+  end
+
+  def show_gallows
+    puts case @tries
+    when 6
+      ['   ____', '   |  |', '      |', '      |', '      |', '      |', '______|']
+    when 5
+      ['   ____', '   |  |', '   O  |', '      |', '      |', '      |', '______|']
+    when 4
+      ['   ____', '   |  |', '   O  |', '   |  |', '   |  |', '      |', '______|']
+    when 3
+      ['   ____', '   |  |', '   O  |', '  /|  |', '   |  |', '      |', '______|']
+    when 2
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '      |', '______|']
+    when 1
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  /   |', '______|']
+    when 0
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  / \ |', '______|']
+    end
   end
 
   # need to check the input
