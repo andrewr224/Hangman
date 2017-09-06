@@ -1,5 +1,26 @@
 class Game
+  def initialize
+    # puts "Please enter 'new' to play, or 'load' to load a saved game."
+    # answer = gets.chomp
+    @game = Hangman.new
+  end
 
+  def guess
+    guess = ""
+    until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)
+      if guess.length > 1
+        puts "You can guess one letter at a time."
+      elsif (@hits.include? guess) || (@misses.include? guess)
+        puts "You already tried that letter."
+      end
+      print "Your guess: "
+      guess = gets.chomp.upcase
+    end
+    guess
+  end
+end
+
+class Hangman
   def initialize
     @word = get_the_word
     @tries = 6
@@ -41,7 +62,7 @@ class Game
     end
     show_gallows
     puts "Word:   #{hide_word.join(' ')}"
-    puts "You have lost." if game_over?
+    puts "You have lost.\nThe answer is #{@word.join('')}" if game_over?
     puts "You are victorious!" if victory?
   end
 
@@ -67,14 +88,17 @@ class Game
   # need to check the input
   def guess
     guess = ""
-    until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)
+    until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)&&(guess.match(/[A-Z]/))
       if guess.length > 1
         puts "You can guess one letter at a time."
       elsif (@hits.include? guess) || (@misses.include? guess)
         puts "You already tried that letter."
+      elsif guess.match(/[A-Z]/).nil?
+        puts "You need to enter a letter."
       end
       print "Your guess: "
       guess = gets.chomp.upcase
+
     end
     guess
   end
