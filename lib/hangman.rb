@@ -1,22 +1,28 @@
 class Game
   def initialize
-    # puts "Please enter 'new' to play, or 'load' to load a saved game."
-    # answer = gets.chomp
-    @game = Hangman.new
+    puts "Welcome to Hangman!\n\n"
+    if File.exist?('./save.dat')
+      new_or_load
+    else
+      new_or_load("NEW")
+    end
+    puts "\nYou can enter 'save' before any turn to seve your game.\n"
+    @game.take_turn
   end
 
-  def guess
-    guess = ""
-    until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)
-      if guess.length > 1
-        puts "You can guess one letter at a time."
-      elsif (@hits.include? guess) || (@misses.include? guess)
-        puts "You already tried that letter."
-      end
-      print "Your guess: "
-      guess = gets.chomp.upcase
+  def new_or_load(game = "")
+    game = game
+    until (game == "NEW")||(game == "LOAD")
+      print "Please enter 'new' to sart a new game, or 'load', to load\nexisting one: "
+      game = gets.chomp.upcase
     end
-    guess
+    if game == "NEW"
+      puts "You have started a new game."
+      @game = Hangman.new
+    elsif game == "LOAD"
+      puts "You have loaded the game."
+      @game = Hangman.load
+    end
   end
 end
 
@@ -26,7 +32,16 @@ class Hangman
     @tries = 6
     @misses = []
     @hits = []
-    take_turn
+  end
+
+  def save
+    File.open("./save.dat", "w") do |file|
+      file.puts Marshal::dump(self)
+    end
+  end
+
+  def self.load
+    Marshal::load(File.read("./save.dat"))
   end
 
   # First filters the words array created from '5desk.txt', then
@@ -66,35 +81,21 @@ class Hangman
     puts "You are victorious!" if victory?
   end
 
-  def show_gallows
-    puts case @tries
-    when 6
-      ['   ____', '   |  |', '      |', '      |', '      |', '      |', '______|']
-    when 5
-      ['   ____', '   |  |', '   O  |', '      |', '      |', '      |', '______|']
-    when 4
-      ['   ____', '   |  |', '   O  |', '   |  |', '   |  |', '      |', '______|']
-    when 3
-      ['   ____', '   |  |', '   O  |', '  /|  |', '   |  |', '      |', '______|']
-    when 2
-      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '      |', '______|']
-    when 1
-      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  /   |', '______|']
-    when 0
-      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  / \ |', '______|']
-    end
-  end
-
   # need to check the input
   def guess
     guess = ""
     until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)&&(guess.match(/[A-Z]/))
-      if guess.length > 1
-        puts "You can guess one letter at a time."
-      elsif (@hits.include? guess) || (@misses.include? guess)
-        puts "You already tried that letter."
+      if guess == "SAVE"
+        puts "Saving..."
+        save
+        puts "Your game has been saved. You can load it next time."
+        exit
       elsif guess.match(/[A-Z]/).nil?
         puts "You need to enter a letter."
+      elsif guess.length > 1
+        puts "You can guess one letter at a time\n(if you want to save your game, enter 'save')."
+      elsif (@hits.include? guess) || (@misses.include? guess)
+        puts "You already tried that letter."
       end
       print "Your guess: "
       guess = gets.chomp.upcase
@@ -118,6 +119,25 @@ class Hangman
 
   def victory?
     hide_word == @word
+  end
+
+  def show_gallows
+    puts case @tries
+    when 6
+      ['   ____', '   |  |', '      |', '      |', '      |', '      |', '______|']
+    when 5
+      ['   ____', '   |  |', '   O  |', '      |', '      |', '      |', '______|']
+    when 4
+      ['   ____', '   |  |', '   O  |', '   |  |', '   |  |', '      |', '______|']
+    when 3
+      ['   ____', '   |  |', '   O  |', '  /|  |', '   |  |', '      |', '______|']
+    when 2
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '      |', '______|']
+    when 1
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  /   |', '______|']
+    when 0
+      ['   ____', '   |  |', '   O  |', '  /|\ |', '   |  |', '  / \ |', '______|']
+    end
   end
 end
 
