@@ -10,6 +10,7 @@ class Game
     @game.take_turn
   end
 
+  private
   def new_or_load(game = "")
     game = game
     until (game == "NEW")||(game == "LOAD")
@@ -34,6 +35,19 @@ class Hangman
     @hits = []
   end
 
+  def take_turn
+    until game_over? || victory?
+      show_gallows
+      puts "Word:   #{hide_word.join(' ')}"
+      puts "Misses: #{@misses.join(', ')}"
+      check_guess guess
+    end
+    show_gallows
+    puts "Word:   #{hide_word.join(' ')}"
+    puts "You have lost.\nThe answer is #{@word.join('')}" if game_over?
+    puts "You are victorious!" if victory?
+  end
+
   def save
     File.open("./save.dat", "w") do |file|
       file.puts Marshal::dump(self)
@@ -44,6 +58,7 @@ class Hangman
     Marshal::load(File.read("./save.dat"))
   end
 
+  private
   # First filters the words array created from '5desk.txt', then
   # gives back an array containing a word
   def get_the_word
@@ -68,20 +83,6 @@ class Hangman
     hidden
   end
 
-  def take_turn
-    until game_over? || victory?
-      show_gallows
-      puts "Word:   #{hide_word.join(' ')}"
-      puts "Misses: #{@misses.join(', ')}"
-      check_guess guess
-    end
-    show_gallows
-    puts "Word:   #{hide_word.join(' ')}"
-    puts "You have lost.\nThe answer is #{@word.join('')}" if game_over?
-    puts "You are victorious!" if victory?
-  end
-
-  # need to check the input
   def guess
     guess = ""
     until (guess.length == 1)&&(!@hits.include? guess)&&(!@misses.include? guess)&&(guess.match(/[A-Z]/))
